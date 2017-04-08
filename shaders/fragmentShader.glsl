@@ -10,6 +10,7 @@ precision mediump int;
 // EPS is for the precision issue (see precept slide)
 #define INFINITY 1.0e+12
 #define EPS 1.0e-3
+#define PI 3.14159265359
 
 // define constants for scene setting 
 #define MAX_LIGHTS 10
@@ -106,11 +107,7 @@ bool chooseCloserIntersection( float dist, inout float best_dist, inout Intersec
 // shortest distance from plane to point
 float signedDistance( vec3 norm, vec3 point, vec3 p ) {
     float d = -dot(norm, point);
-    return (dot(norm, p) + d) / (sqrt(norm.x*norm.x + norm.y*norm.y + norm.z*norm.z));
-}
-
-float magnitude( vec3 v ) {
-    return sqrt( v.x*v.x + v.y*v.y + v.z*v.z );
+    return (dot(norm, p) + d) / length(norm);
 }
 // ----------- STUDENT CODE END ------------
 
@@ -141,12 +138,7 @@ float findIntersectionWithPlane3( Ray ray, vec3 p1, vec3 p2, vec3 p3, out Inters
 
 // return the area of a triangle defined by 3 points
 float areaOfTriangle( vec3 t1, vec3 t2, vec3 t3 ) {
-    // vec3 v1 = p1 - p2;
-    // vec3 v2 = p1 - p3;
-    // float theta = acos(dot(normalize(v1), normalize(v2)));
-    // return 0.5 * magnitude(v1) * magnitude(v2) * sin(theta);
-
-    return 0.5 * magnitude(cross(t2 - t1, t3 - t1));
+    return 0.5 * length(cross(t2 - t1, t3 - t1));
 }
 
 // return true if point p is in the triangle defined by t1, t2, t3
@@ -156,7 +148,7 @@ bool pointInTriangle( vec3 p, vec3 t1, vec3 t2, vec3 t3) {
     float b = areaOfTriangle(p, t1, t3) / areaOfTriangle(t1, t2, t3);
     float c = areaOfTriangle(p, t2, t3) / areaOfTriangle(t1, t2, t3);
 
-    if (a >= 0.0 && a <= 1.0 && b >= 0.0 && b <= 1.0 && c >= 0.0 && c <= 1.0) return true;
+    if (a >= -EPS && a <= 1.0+EPS && b >= -EPS && b <= 1.0+EPS && c >= -EPS && c <= 1.0+EPS) return true;
     else return false;
 }
 
@@ -164,7 +156,6 @@ bool pointInTriangle( vec3 p, vec3 t1, vec3 t2, vec3 t3) {
 float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Intersection intersect ) {
 
     // find intersection of ray with triangle plane
-    // Intersection pIntersection;
     float len = findIntersectionWithPlane3(ray, t1, t2, t3, intersect);
     vec3 p = intersect.position;
 
@@ -175,8 +166,8 @@ float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Inte
     vec3 n1 = normalize(cross(v2, v1));
     vec3 n2 = normalize(cross(v3, v2));
     vec3 n3 = normalize(cross(v1, v3));
-    if (signedDistance(n1, ray.origin, p) < 0.0 || signedDistance(n2, ray.origin, p) < 0.0
-        || signedDistance(n3, ray.origin, p) < 0.0) return INFINITY;
+    if (signedDistance(n1, ray.origin, p) < EPS || signedDistance(n2, ray.origin, p) < EPS
+        || signedDistance(n3, ray.origin, p) < EPS) return INFINITY;
 
     v1 = t1 - p;
     v2 = t2 - p;
@@ -184,11 +175,10 @@ float findIntersectionWithTriangle( Ray ray, vec3 t1, vec3 t2, vec3 t3, out Inte
     n1 = normalize(cross(v2, v1));
     n2 = normalize(cross(v3, v2));
     n3 = normalize(cross(v1, v3));
-    if (dot(ray.direction, n1) < 0.0 || dot(ray.direction, n2) < 0.0 || dot(ray.direction, n3) < 0.0)
+    if (dot(ray.direction, n1) < EPS || dot(ray.direction, n2) < EPS || dot(ray.direction, n3) < EPS)
         return INFINITY;
    
-    // if (dot(cross(t3-t1, t1-t1), intersect.normal) < 0.0 ||  !pointInTriangle(p, t1, t2, t3)) return INFINITY;
-    // else return len;
+    return len;
 }
 
 // Sphere
@@ -196,22 +186,22 @@ float findIntersectionWithSphere( Ray ray, vec3 center, float radius, out Inters
   
     vec3 L = center - ray.origin;
     float t_ca = dot( L, ray.direction );
-    if (t_ca < 0.0) return INFINITY;
+    if (t_ca < -EPS) return INFINITY;
     float d = dot(L, L) - t_ca * t_ca;
-    if (d > radius*radius) return INFINITY;
+    if (d > radius*radius + EPS) return INFINITY;
     float t_hc = sqrt(radius*radius - d);
     float t1 = t_ca - t_hc;
     float t2 = t_ca + t_hc;
 
     float t;
 
-    if (t1 > 0.0) t = t1;
-    else if (t2 > 0.0) t = t2;
+    if (t1 > EPS) t = t1;
+    else if (t2 > EPS) t = t2;
     else return INFINITY;
 
     intersect.position = rayGetOffset(ray, t);
     intersect.normal = normalize(intersect.position - center);
-    return magnitude(t * ray.direction);
+    return length(t * ray.direction);
 }
 
 // Box
@@ -245,8 +235,8 @@ float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection o
     out_intersect = pClosest;
     p = out_intersect.position;
 
-    if (p.x >= pmin.x && p.x <= pmax.x && p.y >= pmin.y && 
-        p.y <= pmax.y && p.z >= pmin.z && p.z <= pmax.z) return minDist;
+    if (p.x >= pmin.x - EPS && p.x <= pmax.x + EPS && p.y >= pmin.y - EPS && 
+        p.y <= pmax.y + EPS && p.z >= pmin.z - EPS && p.z <= pmax.z + EPS) return minDist;
 
     else return INFINITY;
 }  
@@ -254,33 +244,39 @@ float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection o
 // Cylinder
 float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, float rad, out Intersection intersect ) {
 
+    // calculate intersection point
     vec3 delP = ray.origin - center;
 
     vec3 temp1 = ray.direction - dot(ray.direction, axis) * axis;
     vec3 temp2 = delP - dot(delP, axis) * axis;
 
-    float a = magnitude(temp1) * magnitude(temp1);
+    float a = length(temp1) * length(temp1);
     float b = 2.0 * dot(temp1, temp2);
-    float c = magnitude(temp2) * magnitude(temp2) - rad*rad;
+    float c = length(temp2) * length(temp2) - rad*rad;
 
     float t1 = (-b + sqrt(b*b-4.0*a*c))/(2.0*a);
     float t2 = (-b - sqrt(b*b-4.0*a*c))/(2.0*a);
 
     float t;
-    if (t2 > 0.0) t = t2;
-    else if (t1 > 0.0) t = t1;
+    if (t2 > EPS) t = t2;
+    else if (t1 > EPS) t = t1;
     else return INFINITY;
 
+    // cut to length
     intersect.position = rayGetOffset(ray, t);
-    if (magnitude(intersect.position - center)*magnitude(intersect.position - center) - rad*rad > len*len)
+    if (length(intersect.position - center)*length(intersect.position - center) - rad*rad > len*len)
         return INFINITY;
-    intersect.normal = normalize(intersect.position - center);
-    return magnitude(t * ray.direction);
+
+    // calculate intersection position and normal
+    vec3 pDiff = intersect.position - center;
+    float lenDiff = sqrt(length(pDiff)*length(pDiff)-rad*rad);
+    intersect.normal = normalize(pDiff-normalize(axis)*lenDiff);
+    return length(t * ray.direction);
 }
 
 float getIntersectDisc( Ray ray, vec3 center, vec3 norm, float rad, out Intersection intersect ) {
     float len = findIntersectionWithPlane(ray, norm, dot(norm, center), intersect);
-    if (abs(magnitude(intersect.position - center)) <= rad) return len;
+    if (abs(length(intersect.position - center)) <= rad) return len;
     else return INFINITY;
 }
 
@@ -311,12 +307,39 @@ float findIntersectionWithCylinder( Ray ray, vec3 center, vec3 apex, float radiu
 float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radius, out Intersection intersect ) {
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 31 lines of code.
+    vec3 center = axis*len + apex;
 
-    // float delP = ray.origin - center;
-    // float a = cos()
+    vec3 v = normalize(ray.direction);
+    vec3 va = normalize(axis);
 
-    return INFINITY; // currently reports no intersection
-    // ----------- STUDENT CODE END ------------
+    float alpha = atan(radius / len);
+    vec3 delP = ray.origin - apex;
+
+    vec3 temp1 = v - dot(v, va) * va;
+    vec3 temp2 = delP - dot(delP, va) * va;
+    float temp3 = dot(v, va);
+    float temp4 = dot(delP, va);
+
+    float a = cos(alpha)*cos(alpha) * length(temp1)*length(temp1) - sin(alpha)*sin(alpha)*temp3*temp3;
+    float b = 2.0 * cos(alpha) * cos(alpha) * dot(temp1, temp2) - 2.0*sin(alpha)*sin(alpha)*temp3*temp4;
+    float c = cos(alpha)*cos(alpha)*length(temp2)*length(temp2) - sin(alpha)*sin(alpha)*temp4*temp4;
+
+    float t1 = (-b + sqrt(b*b-4.0*a*c))/(2.0*a);
+    float t2 = (-b - sqrt(b*b-4.0*a*c))/(2.0*a);
+
+    float t;
+    if (t2 > 0.0) t = t2;
+    else if (t1 > 0.0) t = t1;
+    else return INFINITY;
+
+    intersect.position = rayGetOffset(ray, t);
+    vec3 pDiff = intersect.position - apex;
+
+    if (length(pDiff)*length(pDiff) - radius*radius > len*len ||
+         length(intersect.position - center) > len) return INFINITY;
+
+    intersect.normal = normalize(pDiff - length(pDiff)/cos(alpha) * normalize(axis));
+    return length(t * ray.direction);
 }
 
 float findIntersectionWithCone( Ray ray, vec3 center, vec3 apex, float radius, out Intersection out_intersect ) {
@@ -342,19 +365,29 @@ float findIntersectionWithCone( Ray ray, vec3 center, vec3 apex, float radius, o
 
 #define MAX_RECURSION 8
 
+// simple random number generator http://www.ozone3d.net/blogs/lab/20110427/glsl-random-generator/
+float rand(vec2 n) {
+  return 0.5 + 0.5 * fract(sin(dot(n.xy, vec2(12.9898, 78.233)))* 43758.5453);
+}
+
 vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 normalVector ) {
-    // ----------- STUDENT CODE BEGIN ------------
     if ( mat.special == CHECKERBOARD ) {
-        // do something here for checkerboard
-        // ----------- Our reference solution uses 21 lines of code.
-    } 
+        
+        // display square size similar to example
+        posIntersection = posIntersection/8.0;
+
+        if (mod(floor(posIntersection.x) + floor(posIntersection.y) + 
+            floor(posIntersection.z), 2.0) == 0.0) return mat.color * 0.5;
+        else return mat.color;
+    }
     else if ( mat.special == MYSPECIAL ) {
-        // do something here for myspecial
-        // ----------- Our reference solution uses 2 lines of code.
+        posIntersection = normalize(posIntersection);
+
+        return mat.color;
+        // return mat.color * (posIntersection.x + posIntersection.y + posIntersection.z);
     }
 
-    return mat.color; // special materials not implemented. just return material color.
-    // ----------- STUDENT CODE END ------------
+    return mat.color;
 }
 
 vec3 calculateDiffuseColor( Material mat, vec3 posIntersection, vec3 normalVector ) {
@@ -368,20 +401,37 @@ vec3 calculateDiffuseColor( Material mat, vec3 posIntersection, vec3 normalVecto
 // check if position pos in in shadow with respect to a particular light.
 // lightVec is the vector from that position to that light
 bool pointInShadow( vec3 pos, vec3 lightVec ) {
-    // ----------- STUDENT CODE BEGIN ------------
-    // ----------- Our reference solution uses 10 lines of code.
+    Ray ray;
+    ray.origin = pos;
+    ray.direction = normalize(lightVec);
+    Material out_mat;
+    Intersection out_intersect;
 
-
-    float best_dist;
-    Intersection intersect;
-    Intersection best_intersect;
-    chooseCloserIntersection(magnitude(lightVec), best_dist, intersect, best_intersect);
-    float dist = magnitude(best_intersect.position - pos);
-
-    // float dist = magnitude(lightVec - pos);
-    if (dist > 0.0 && dist < magnitude(lightVec)) return true;
+    float dist = rayIntersectScene( ray, out_mat, out_intersect );
+    if (dist > EPS && dist < length(lightVec) + EPS) return true;
     return false;
-    // ----------- STUDENT CODE END ------------
+}
+
+// soft shadow
+float pointShadowRatio( vec3 pos, vec3 lightVec ) {
+
+    float count = 0.0;
+    int k = 10;
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            // randomly sample new light ray around original light
+            float u = rand(vec2(-1.0, 1.0));
+            float theta = rand(vec2(0.0, 2.0*PI));
+            float x = sqrt(1.0 - u*u)*cos(theta);
+            float y = sqrt(1.0 - u*u)*sin(theta);
+            float z = u;
+            vec3 newLighVec = vec3(x, y, z);
+            if (!pointInShadow(pos, newLighVec)) {
+                count += 1.0;
+            }
+        }
+    }
+    return count / float(k*k);
 }
 
 vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3 normalVector, vec3 eyeVector, bool phongOnly, vec3 diffuseColor ) {
@@ -407,14 +457,17 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
         }
         
         if ( mat.materialType == PHONGMATERIAL ) {
-            // ----------- STUDENT CODE BEGIN ------------
-            vec3 phongTerm = vec3( 0.0, 0.0, 0.0 ); // not implemented yet, so just add black   
-            // ----------- Our reference solution uses 10 lines of code.
-            // ----------- STUDENT CODE END ------------
+            vec3 refVector = reflect(lightVector, normalVector);
+            float phongIntensity = pow(max( 0.0, dot( eyeVector, refVector ) ) * light.intensity, 0.1);
+            // vec3 phongTerm = vec3( phongIntensity, phongIntensity, phongIntensity );
+            vec3 phongTerm = vec3( 0.0, 0.0, 0.0 );
+
             contribution += phongTerm;
         }
 
         return contribution;
+        // for soft shadow:
+        return contribution * pointShadowRatio(posIntersection, lightVector);
     }
     else {
         return diffuseColor;
@@ -449,6 +502,8 @@ vec3 calcReflectionVector( Material material, vec3 direction, vec3 normalVector,
     // see lecture 13 slide ( lighting ) on Snell's law
     // the eta below is eta_i/eta_r
     float eta = ( isInsideObj ) ? 1.0/material.refractionRatio : material.refractionRatio;
+    return refract( normalize(direction), normalize(normalVector), eta);
+
     // ----------- Our reference solution uses 11 lines of code.
     
     return reflect( direction, normalVector ); // return mirror direction so you can see something
