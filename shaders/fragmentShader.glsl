@@ -100,16 +100,11 @@ bool chooseCloserIntersection( float dist, inout float best_dist, inout Intersec
     return true;
 }
 
-// put any general convenience functions you want up here
-// ----------- STUDENT CODE BEGIN ------------
-// ----------- Our reference solution uses 135 lines of code.
-
 // shortest distance from plane to point
 float signedDistance( vec3 norm, vec3 point, vec3 p ) {
     float d = -dot(norm, point);
     return (dot(norm, p) + d) / length(norm);
 }
-// ----------- STUDENT CODE END ------------
 
 // forward declaration
 float rayIntersectScene( Ray ray, out Material out_mat, out Intersection out_intersect );
@@ -132,7 +127,7 @@ float findIntersectionWithPlane( Ray ray, vec3 norm, float dist, out Intersectio
 
 // find the intersection of a ray with a plane defined by 3 points
 float findIntersectionWithPlane3( Ray ray, vec3 p1, vec3 p2, vec3 p3, out Intersection out_intersect) {
-    vec3 norm = cross( p3 - p1, p2 - p3 );
+    vec3 norm = normalize(cross(p1 - p2, p1 - p3));
     return findIntersectionWithPlane(ray, norm, dot(p1, norm), out_intersect);
 }
 
@@ -204,9 +199,15 @@ float findIntersectionWithSphere( Ray ray, vec3 center, float radius, out Inters
     return length(t * ray.direction);
 }
 
+// return true if p is within the bounds of [pmin, pmax]
+bool inBounds(vec3 p, vec3 pmin, vec3 pmax) {
+    if (p.x >= pmin.x - EPS && p.x <= pmax.x + EPS && p.y >= pmin.y - EPS && 
+        p.y <= pmax.y + EPS && p.z >= pmin.z - EPS && p.z <= pmax.z + EPS) return true;
+    else return false;
+}
+
 // Box
 float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection out_intersect ) {
-
     float len;
     Intersection pClosest;
     float minDist = INFINITY;
@@ -214,32 +215,26 @@ float findIntersectionWithBox( Ray ray, vec3 pmin, vec3 pmax, out Intersection o
     vec3 p;
 
     // check each face for closest plane
-    len = findIntersectionWithPlane(ray, vec3(1, 0, 0), pmax.x, out_intersect);
-    if (len < minDist) { minDist = len; pClosest = out_intersect; }
+    len = findIntersectionWithPlane(ray, vec3(1, 0, 0), pmax.x, pClosest);
+    if (len < minDist && inBounds(pClosest.position, pmin, pmax)) { out_intersect = pClosest; minDist = len; }
 
-    len = findIntersectionWithPlane(ray, vec3(-1, 0, 0), pmin.x, out_intersect);
-    if (len < minDist) { minDist = len; pClosest = out_intersect; }
+    len = findIntersectionWithPlane(ray, vec3(-1, 0, 0), -pmin.x, pClosest);
+    if (len < minDist && inBounds(pClosest.position, pmin, pmax)) { out_intersect = pClosest; minDist = len; }
 
-    len = findIntersectionWithPlane(ray, vec3(0, 1, 0), pmax.y, out_intersect);
-    if (len < minDist) { minDist = len; pClosest = out_intersect; }
+    len = findIntersectionWithPlane(ray, vec3(0, 1, 0), pmax.y, pClosest);
+    if (len < minDist && inBounds(pClosest.position, pmin, pmax)) { out_intersect = pClosest; minDist = len; }
 
-    len = findIntersectionWithPlane(ray, vec3(0, -1, 0), pmin.y, out_intersect);
-    if (len < minDist) { minDist = len; pClosest = out_intersect; }
+    len = findIntersectionWithPlane(ray, vec3(0, -1, 0), -pmin.y, pClosest);
+    if (len < minDist && inBounds(pClosest.position, pmin, pmax)) { out_intersect = pClosest; minDist = len; }
 
-    len = findIntersectionWithPlane(ray, vec3(0, 0, 1), pmax.z, out_intersect);
-    if (len < minDist) { minDist = len; pClosest = out_intersect; }
+    len = findIntersectionWithPlane(ray, vec3(0, 0, 1), pmax.z, pClosest);
+    if (len < minDist && inBounds(pClosest.position, pmin, pmax)) { out_intersect = pClosest; minDist = len; }
 
-    len = findIntersectionWithPlane(ray, vec3(0, 0, -1), pmin.z, out_intersect);
-    if (len < minDist) { minDist = len; pClosest = out_intersect; }
+    len = findIntersectionWithPlane(ray, vec3(0, 0, -1), -pmin.z, pClosest);
+    if (len < minDist && inBounds(pClosest.position, pmin, pmax)) { out_intersect = pClosest; minDist = len; }
 
-    out_intersect = pClosest;
-    p = out_intersect.position;
-
-    if (p.x >= pmin.x - EPS && p.x <= pmax.x + EPS && p.y >= pmin.y - EPS && 
-        p.y <= pmax.y + EPS && p.z >= pmin.z - EPS && p.z <= pmax.z + EPS) return minDist;
-
-    else return INFINITY;
-}  
+    return minDist;
+}
 
 // Cylinder
 float getIntersectOpenCylinder( Ray ray, vec3 center, vec3 axis, float len, float rad, out Intersection intersect ) {
@@ -280,7 +275,6 @@ float getIntersectDisc( Ray ray, vec3 center, vec3 norm, float rad, out Intersec
     else return INFINITY;
 }
 
-
 float findIntersectionWithCylinder( Ray ray, vec3 center, vec3 apex, float radius, out Intersection out_intersect ) {
     vec3 axis = apex - center;
     float len = length( axis );
@@ -305,8 +299,8 @@ float findIntersectionWithCylinder( Ray ray, vec3 center, vec3 apex, float radiu
     
 // Cone
 float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radius, out Intersection intersect ) {
-    // ----------- STUDENT CODE BEGIN ------------
-    // ----------- Our reference solution uses 31 lines of code.
+    
+    // calculate distance to cone
     vec3 center = axis*len + apex;
 
     vec3 v = normalize(ray.direction);
@@ -332,12 +326,11 @@ float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radi
     else if (t1 > 0.0) t = t1;
     else return INFINITY;
 
+    // cut to length and calculate intersection point and normal
     intersect.position = rayGetOffset(ray, t);
     vec3 pDiff = intersect.position - apex;
-
     if (length(pDiff)*length(pDiff) - radius*radius > len*len ||
          length(intersect.position - center) > len) return INFINITY;
-
     intersect.normal = normalize(pDiff - length(pDiff)/cos(alpha) * normalize(axis));
     return length(t * ray.direction);
 }
@@ -367,7 +360,7 @@ float findIntersectionWithCone( Ray ray, vec3 center, vec3 apex, float radius, o
 
 // simple random number generator http://www.ozone3d.net/blogs/lab/20110427/glsl-random-generator/
 float rand(vec2 n) {
-  return 0.5 + 0.5 * fract(sin(dot(n.xy, vec2(12.9898, 78.233)))* 43758.5453);
+  return fract(sin(dot(n.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
 
 vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 normalVector ) {
@@ -382,9 +375,7 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
     }
     else if ( mat.special == MYSPECIAL ) {
         posIntersection = normalize(posIntersection);
-
-        return mat.color;
-        // return mat.color * (posIntersection.x + posIntersection.y + posIntersection.z);
+        return mat.color * rand(vec2(posIntersection.x, posIntersection.y));
     }
 
     return mat.color;
@@ -416,15 +407,15 @@ bool pointInShadow( vec3 pos, vec3 lightVec ) {
 float pointShadowRatio( vec3 pos, vec3 lightVec ) {
 
     float count = 0.0;
-    int k = 10;
+    const int k = 10;
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
             // randomly sample new light ray around original light
-            float u = rand(vec2(-1.0, 1.0));
-            float theta = rand(vec2(0.0, 2.0*PI));
-            float x = sqrt(1.0 - u*u)*cos(theta);
-            float y = sqrt(1.0 - u*u)*sin(theta);
-            float z = u;
+            float r1 = rand(vec2(pos.xy)*2.0-1.0);
+            float r2 = rand(vec2(pos.xy)*2.0-1.0);
+            float x = 2.0*r1*sqrt(1.0-r1*r1-r2*r2);
+            float y = 2.0*r2*sqrt(1.0-r1*r1-r2*r2);
+            float z = 1.0-2.0*(r1*r1+r2*r2);
             vec3 newLighVec = vec3(x, y, z);
             if (!pointInShadow(pos, newLighVec)) {
                 count += 1.0;
@@ -438,9 +429,8 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
 
     vec3 lightVector = light.position - posIntersection;
     
-    if ( pointInShadow( posIntersection, lightVector ) ) {
-        return vec3( 0.0, 0.0, 0.0 );
-    }
+    // comment out for soft shadow
+    if ( pointInShadow( posIntersection, lightVector ) ) { return vec3( 0.0, 0.0, 0.0 ); }
 
     if ( mat.materialType == PHONGMATERIAL || mat.materialType == LAMBERTMATERIAL ) {
         vec3 contribution = vec3( 0.0, 0.0, 0.0 );
@@ -457,10 +447,10 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
         }
         
         if ( mat.materialType == PHONGMATERIAL ) {
-            vec3 refVector = reflect(lightVector, normalVector);
-            float phongIntensity = pow(max( 0.0, dot( eyeVector, refVector ) ) * light.intensity, 0.1);
-            // vec3 phongTerm = vec3( phongIntensity, phongIntensity, phongIntensity );
-            vec3 phongTerm = vec3( 0.0, 0.0, 0.0 );
+            vec3 refVector = normalize(reflect(-lightVector, normalVector));
+            float phongIntensity = pow(max(0.0, dot(eyeVector, refVector)), mat.shininess) * light.intensity;
+            vec3 phongTerm = mat.specular * phongIntensity;
+            // vec3 phongTerm = vec3( 0.0, 0.0, 0.0 );
 
             contribution += phongTerm;
         }
@@ -498,16 +488,10 @@ vec3 calcReflectionVector( Material material, vec3 direction, vec3 normalVector,
     // the material is not mirror, so it's glass.
     // compute the refraction direction...
     
-    // ----------- STUDENT CODE BEGIN ------------
     // see lecture 13 slide ( lighting ) on Snell's law
     // the eta below is eta_i/eta_r
     float eta = ( isInsideObj ) ? 1.0/material.refractionRatio : material.refractionRatio;
     return refract( normalize(direction), normalize(normalVector), eta);
-
-    // ----------- Our reference solution uses 11 lines of code.
-    
-    return reflect( direction, normalVector ); // return mirror direction so you can see something
-    // ----------- STUDENT CODE END ------------
 }
 
 vec3 traceRay( Ray ray ) {
