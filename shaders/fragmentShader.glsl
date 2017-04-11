@@ -457,7 +457,7 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
 
         return contribution;
         // for soft shadow:
-        return contribution * pointShadowRatio(posIntersection, lightVector);
+        // return contribution * pointShadowRatio(posIntersection, lightVector);
     }
     else {
         return diffuseColor;
