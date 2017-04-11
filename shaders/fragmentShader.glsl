@@ -322,8 +322,8 @@ float getIntersectOpenCone( Ray ray, vec3 apex, vec3 axis, float len, float radi
     float t2 = (-b - sqrt(b*b-4.0*a*c))/(2.0*a);
 
     float t;
-    if (t2 > 0.0) t = t2;
-    else if (t1 > 0.0) t = t1;
+    if (t2 > EPS) t = t2;
+    else if (t1 > EPS) t = t1;
     else return INFINITY;
 
     // cut to length and calculate intersection point and normal
@@ -375,7 +375,8 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
     }
     else if ( mat.special == MYSPECIAL ) {
         posIntersection = normalize(posIntersection);
-        return mat.color * rand(vec2(posIntersection.x, posIntersection.y));
+        abs(sin(posIntersection.x * dot(posIntersection.xy, vec2(12.9898,78.233))));
+        return mat.color * abs(sin(posIntersection.x * dot(posIntersection.xy, vec2(12.9898,78.233))));
     }
 
     return mat.color;
@@ -408,8 +409,8 @@ float pointShadowRatio( vec3 pos, vec3 lightVec ) {
 
     float count = 0.0;
     const int k = 10;
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < k; j++) {
             // randomly sample new light ray around original light
             float r1 = rand(vec2(pos.xy)*2.0-1.0);
             float r2 = rand(vec2(pos.xy)*2.0-1.0);
@@ -430,7 +431,7 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
     vec3 lightVector = light.position - posIntersection;
     
     // comment out for soft shadow
-    if ( pointInShadow( posIntersection, lightVector ) ) { return vec3( 0.0, 0.0, 0.0 ); }
+    // if ( pointInShadow( posIntersection, lightVector ) ) { return vec3( 0.0, 0.0, 0.0 ); }
 
     if ( mat.materialType == PHONGMATERIAL || mat.materialType == LAMBERTMATERIAL ) {
         vec3 contribution = vec3( 0.0, 0.0, 0.0 );
@@ -449,13 +450,12 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
         if ( mat.materialType == PHONGMATERIAL ) {
             vec3 refVector = normalize(reflect(-lightVector, normalVector));
             float phongIntensity = pow(max(0.0, dot(eyeVector, refVector)), mat.shininess) * light.intensity;
-            vec3 phongTerm = mat.specular * phongIntensity;
-            // vec3 phongTerm = vec3( 0.0, 0.0, 0.0 );
+            vec3 phongTerm = mat.specular * phongIntensity / attenuation * 40.0;
 
             contribution += phongTerm;
         }
 
-        return contribution;
+        // return contribution;
         // for soft shadow:
         return contribution * pointShadowRatio(posIntersection, lightVector);
     }
