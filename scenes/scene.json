@@ -1,66 +1,9 @@
 {"objects": [
         {
-            "comment": "// the back of the cornell box",
-            "type": "plane",
-            "normal": [0, 0, 1],
-            "dist": 40,
-            "material": {
-                "color": [0.3, 0.4, 0.5]
-            }
-        },
-        {
             "comment": "// the front of the cornell box",
             "type": "plane",
             "normal": [0, 0, -1],
-            "dist": 40,
-            "material": {
-                "color": [0.6, 0.8, 1.0]
-            }
-        },
-        {
-            "comment": "// the right of the cornell box",
-            "type": "plane",
-            "normal": [1, 0, 0],
-            "dist": 40,
-            "material": {
-                "color": [0.6, 0.8, 1.0]
-            }
-        },
-        {
-            "comment": "// the left of the cornell box",
-            "type": "plane",
-            "normal": [-1, 0, 0],
-            "dist": 40,
-            "material": {
-                "color": [0.6, 0.8, 1.0]
-            }
-        },
-        {
-            "comment": "// the top of the cornell box",
-            "type": "plane",
-            "normal": [0, 1, 0],
-            "dist": 35,
-            "material": {
-                "color": [0.6, 0.8, 1.0]
-            }
-        },
-        {
-            "comment": "// the bottom of the cornell box",
-            "type": "plane",
-            "normal": [0, -1, 0],
             "dist": 30,
-            "material": {
-                "type": "PHONGMATERIAL",
-                "shininess": 500,
-                "color": [0.1, 0.1, 0.1]
-            }
-        },
-
-        {
-            "comment": "// the mirror sphere (for reflection)",
-            "type": "sphere",
-            "center": [15, 2, 20],
-            "radius": 8,
             "material": {
                 "type": "PHONGMATERIAL",
                 "color": [0.2, 0.2, 0.2],
@@ -71,89 +14,108 @@
             }
         },
         {
-            "comment": "// the glass sphere (for refraction)",
-            "type": "sphere",
-            "center": [-20, -2, 15],
-            "radius": 8,
+            "comment": "// the back of the cornell box",
+            "type": "plane",
+            "normal": [0, 0, 1],
+            "dist": 30,
+            "material": {
+                "color": [0.6, 0.6, 0.6]
+          }
+        },
+        {
+            "comment": "// the right of the cornell box",
+            "type": "plane",
+            "normal": [1, 0, 0],
+            "dist": 30,
             "material": {
                 "type": "PHONGMATERIAL",
-                "color": [0.2, 0.4, 1],
+                "color": [0.2, 0.2, 0.2],
                 "shininess": 1000,
                 "specular": [1, 1, 1],
-                "reflectivity": 1,
-                "reflectType": "GLASSREFLECT"
+                "reflectivity": 0.8,
+                "reflectType": "MIRRORREFLECT"            
             }
         },
-
         {
-            "comment": "// the cylinder",
-            "type": "cylinder",
-            "topCenter": [15.0, -6.0, 20.0],
-            "bottomCenter": [15.0, -30.0, 20.0],
-            "radius": 7,
+            "comment": "// the left of the cornell box",
+            "type": "plane",
+            "normal": [-1, 0, 0],
+            "dist": 30,
             "material": {
                 "type": "PHONGMATERIAL",
-                "color": [0.2, 0.4, 1],
+                "color": [0.2, 0.2, 0.2],
                 "shininess": 1000,
                 "specular": [1, 1, 1],
-                "reflectivity": 1,
-                "reflectType": "GLASSREFLECT"
+                "reflectivity": 0.8,
+                "reflectType": "MIRRORREFLECT"            
             }
         },
-
-
-
-
-
         {
-            "comment": "// the cylinder",
-            "type": "cylinder",
-            "topCenter": [0.0, -20.0, 20.0],
-            "bottomCenter": [0.0, -30.0, 20.0],
-            "radius": 0.5,
+            "comment": "// the top of the cornell box",
+            "type": "plane",
+            "normal": [0, 1, 0],
+            "dist": 35,
             "material": {
-                "type": "PHONGMATERIAL",
-                "color": [0.2, 0.4, 1],
-                "shininess": 1000,
-                "specular": [1, 1, 1],
-                "reflectivity": 1,
-                "reflectType": "GLASSREFLECT"
+                "color": [0.6, 0.6, 0.6]
             }
         },
         {
-            "comment": "// the cone",
-            "type": "cone",
-            "topCenter": [0.0, -21, 20],
-            "bottomCenter": [0.0, 0, 20],
-            "radius": 10,
+            "comment": "// the bottom of the cornell box",
+            "type": "plane",
+            "normal": [0, -1, 0],
+            "dist": 30,
             "material": {
-                "type": "PHONGMATERIAL",
-                "color": [0.2, 0.4, 1],
-                "shininess": 1000,
-                "specular": [1, 1, 1],
-                "reflectivity": 1,
-                "reflectType": "GLASSREFLECT"
+                "color": [0.3, 0.3, 0.3]
             }
         },
+
+
         {
-            "comment": "// the cone",
-            "type": "cone",
-            "topCenter": [0.0, -21, 20],
-            "bottomCenter": [0.0, -10, 20],
-            "radius": 5,
-            "material": {
-                "color": [0.5, 0.1, 0.1]
-            }
-        },
-        {
+            "comment": "// left elevator door",
             "type": "box",
-            "minCorner": [-25, -30, 10],
-            "maxCorner": [-15, -10, 20],
+            "minCorner": [-15, -30, 29.9],
+            "maxCorner": [-0.1, 20, 30],
             "material": {
-                "color": [0.3, 0.4, 0.4]
+                "color": [0.4, 0.4, 0.4]
+            }
+        },
+        {
+            "comment": "// right elevator door",
+            "type": "box",
+            "minCorner": [0.1, -30, 29.9],
+            "maxCorner": [15, 20, 30],
+            "material": {
+                "color": [0.4, 0.4, 0.4]
+            }
+        },
+        {
+            "comment": "// elevator panel",
+            "type": "box",
+            "minCorner": [17, -10, 29.9],
+            "maxCorner": [25, 5, 30],
+            "material": {
+                "color": [0.4, 0.4, 0.4]
+            }
+        },
+        {
+            "comment": "// elevator panel",
+            "type": "box",
+            "minCorner": [17, -10, 29.9],
+            "maxCorner": [25, 5, 30],
+            "material": {
+                "color": [0.4, 0.4, 0.4]
+            }
+        },
+        {
+            "comment": "// the cylinder",
+            "type": "cylinder",
+            "topCenter": [19.0, 3.0, 30.0],
+            "bottomCenter": [19.0, 3.0, 29.8],
+            "radius": 0.7,
+            "material": {
+                "color": [0.0, 0.0, 0.0]
             }
         }
-
     ],
 
     "lights": [
