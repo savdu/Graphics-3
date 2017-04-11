@@ -29,7 +29,6 @@
 <li>(1.5) <a href='#Phong+material'>Phong material</a></li>
 <li>(1.5) <a href='#Special+material'>Special material</a></li>
 <li>(1.0) <a href='#Scene'>Scene</a></li>
-<li>(1.0) <a href='#Animate'>Animate</a></li>
 <li>(1.0) <a href='#Art'>Art</a></li>
         </ul></div>
 
@@ -45,53 +44,64 @@
     I did not encounter any particular challenges in implementing this.
 
 <p><hr><p><a name='Triangle'></a><h2>Triangle</h2><p><hr><p>
-(Your description of your implentation of Triangle goes here...)
-<br>You can include as many results as you want, but please at least include the following results:
-<br> <a href='index.html?scene=mesh'>scene=mesh</a>
+We first checked whether the ray intersected with the plane the triangle was on. Then, we used the algebraic method to determine whether the point of intersection between the ray and plane was within the given triangle.
+<a href='index.html?scene=mesh'>scene=mesh</a>
 
-<br><img src='results/placeholder.png'><p><hr><p><a name='Sphere'></a><h2>Sphere</h2><p><hr><p>
-(Your description of your implentation of Sphere goes here...)
+<br><img src='results/mesh.png'><p><hr><p><a name='Sphere'></a><h2>Sphere</h2><p><hr><p>
+We used the implementation from the lecture slides. We calculate t using the geometric method (intersection exists for positive t).
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Box'></a><h2>Box</h2><p><hr><p>
-(Your description of your implentation of Box goes here...)
+We used the implementation from the lecture sldies. Since we know the box is axis-aligned, we find the intersection between the ray and each normal plane (norm = (1, 0, 0), (-1, 0, 0), etc.) using distances of pmax.x, pmin.x, etc. For planes that intersected, we then checked whether the interseciton point was within the bounds of the box by comparing to pmin and pmax values. We recorded the distances between the ray origin and any intersection points, and returned the closest one as the final intersection.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Cylinder'></a><h2>Cylinder</h2><p><hr><p>
-(Your description of your implentation of Cylinder goes here...)
+For the open cylinder, we used the implementation from the precept slides. We first solved for t based on the given equation using the ray origin and direction and cylinder axis and center (intersection exists for positive t). Then, we calculated the distance from the center to the intersection point to calculate whether the intersection point was past the given length of the cylinder. For getIntersectDisc, we calculated whether the ray intersected the plane that the circle was on, and then calculated whether the intersection point was within the disc given its radius.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Cone'></a><h2>Cone</h2><p><hr><p>
-(Your description of your implentation of Cone goes here...)
+For the open cone, we used the implementation from the precept slides. We first solved for t based on the given equation using the ray origin and direction and cone axis and apex (intersection exists for positive t). Then, we calculated the distance from the apex to the intersection point to calculate whether the intersection point was past the given length of the cone. The getIntersectDisc was the same as for cylinder.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Shadows'></a><h2>Shadows</h2><p><hr><p>
-(Your description of your implentation of Shadows goes here...)
+We followed the lecture slides. First, we found the nearest intersection to the ray using the given rayIntersectsScene function. We then compared the distance from the ray to the nearest intersection to the distance to the light source, and returned shadow if the former was shorter than the latter.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Soft+shadows'></a><h2>Soft shadows</h2><p><hr><p>
 (Your description of your implentation of Soft shadows goes here...)
 
 <p><hr><p><a name='Transmission'></a><h2>Transmission</h2><p><hr><p>
-(Your description of your implentation of Transmission goes here...)
+We used the GLSL refract function with the given direction, normal vector, and eta. (Shown in left sphere.)
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Checkerboard'></a><h2>Checkerboard</h2><p><hr><p>
-(Your description of your implentation of Checkerboard goes here...)
+We used the given function in the lecture slides for 2D (floor(x) + floor(y)) but added the floor(z) dimension for the 3D checkerboard.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Phong+material'></a><h2>Phong material</h2><p><hr><p>
-(Your description of your implentation of Phong material goes here...)
+We used the given formula from the lecture slides, using the material shininess coefficients and and specular. We divided by attenuation and multipled by a constant to achieve a brightness similar to the examples.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Special+material'></a><h2>Special material</h2><p><hr><p>
-(Your description of your implentation of Special material goes here...)
-<br>You can include as many results as you want, but please at least include the following results:
-<br> <a href='index.html?scene=default'>scene=default</a>
+We multipled the color by a random number between 0 and 1, which was calculated by taking the absolute value of the sin of a random number calculated incorporating the position vector.
+<a href='index.html?scene=default'>scene=default</a>
+<br><img src='results/default.png'><p>
 
-<br><img src='results/placeholder.png'><p><hr><p><a name='Scene'></a><h2>Scene</h2><p><hr><p>
+<hr><p><a name='Scene'></a><h2>Scene</h2><p><hr><p>
 (Your description of your implentation of Scene goes here...)
 <br>You can include as many results as you want, but please at least include the following results:
 <br> <a href='index.html?scene=myScene'>scene=myScene</a>
 
-<br><img src='results/placeholder.png'><p><hr><p><a name='Animate'></a><h2>Animate</h2><p><hr><p>
-(Your description of your implentation of Animate goes here...)
-<br>You can include as many results as you want, but please at least include the following results:
-<br> <a href='index.html?animate=1'>animated=1</a>
-
-<br><img src='results/placeholder.png'><p><hr><p><a name='Art'></a><h2>Art</h2><p><hr><p>
+<br><img src='results/placeholder.png'><p>
+<p><hr><p><a name='Art'></a><h2>Art</h2><p><hr><p>
 (Your description of your implentation of Art goes here...)
 
     </div>

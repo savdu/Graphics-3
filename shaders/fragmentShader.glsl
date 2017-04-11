@@ -375,7 +375,6 @@ vec3 calculateSpecialDiffuseColor( Material mat, vec3 posIntersection, vec3 norm
     }
     else if ( mat.special == MYSPECIAL ) {
         posIntersection = normalize(posIntersection);
-        abs(sin(posIntersection.x * dot(posIntersection.xy, vec2(12.9898,78.233))));
         return mat.color * abs(sin(posIntersection.x * dot(posIntersection.xy, vec2(12.9898,78.233))));
     }
 
@@ -431,7 +430,7 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
     vec3 lightVector = light.position - posIntersection;
     
     // comment out for soft shadow
-    // if ( pointInShadow( posIntersection, lightVector ) ) { return vec3( 0.0, 0.0, 0.0 ); }
+    if ( pointInShadow( posIntersection, lightVector ) ) { return vec3( 0.0, 0.0, 0.0 ); }
 
     if ( mat.materialType == PHONGMATERIAL || mat.materialType == LAMBERTMATERIAL ) {
         vec3 contribution = vec3( 0.0, 0.0, 0.0 );
@@ -455,7 +454,7 @@ vec3 getLightContribution( Light light, Material mat, vec3 posIntersection, vec3
             contribution += phongTerm;
         }
 
-        // return contribution;
+        return contribution;
         // for soft shadow:
         return contribution * pointShadowRatio(posIntersection, lightVector);
     }
