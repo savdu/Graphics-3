@@ -73,7 +73,9 @@ We followed the lecture slides. First, we found the nearest intersection to the 
 <br><img src='results/default.png'><p>
 
 <p><hr><p><a name='Soft+shadows'></a><h2>Soft shadows</h2><p><hr><p>
-(Your description of your implentation of Soft shadows goes here...)
+We followed the implementation on the precept slides (randomly sampled new light rays around the original light and tracked the fraction that were in the hard shadow).
+(Since rendering is slow, we left the soft shadow contribution commented in our submitted code.)
+<br><img src='results/defaultsoft.png'><p>
 
 <p><hr><p><a name='Transmission'></a><h2>Transmission</h2><p><hr><p>
 We used the GLSL refract function with the given direction, normal vector, and eta. (Shown in left sphere.)
@@ -96,14 +98,11 @@ We multipled the color by a random number between 0 and 1, which was calculated 
 <br><img src='results/default.png'><p>
 
 <hr><p><a name='Scene'></a><h2>Scene</h2><p><hr><p>
-(Your description of your implentation of Scene goes here...)
-<br>You can include as many results as you want, but please at least include the following results:
+Interior of an elevator with mirrors on the left and right walls (appearance of infinite/endless walls).
 <br> <a href='index.html?scene=myScene'>scene=myScene</a>
-
-<br><img src='results/placeholder.png'><p>
+<br><img src='results/scene.png'><p>
 <p><hr><p><a name='Art'></a><h2>Art</h2><p><hr><p>
-(Your description of your implentation of Art goes here...)
-
+Elevator scene
     </div>
     </div>
 </body>

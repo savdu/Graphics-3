@@ -393,31 +393,33 @@ vec3 calculateDiffuseColor( Material mat, vec3 posIntersection, vec3 normalVecto
 // check if position pos in in shadow with respect to a particular light.
 // lightVec is the vector from that position to that light
 bool pointInShadow( vec3 pos, vec3 lightVec ) {
-    // Ray ray;
-    // ray.origin = pos;
-    // ray.direction = normalize(lightVec);
-    // Material out_mat;
-    // Intersection out_intersect;
+    Ray ray;
+    ray.origin = pos;
+    ray.direction = normalize(lightVec);
+    Material out_mat;
+    Intersection out_intersect;
 
-    // float dist = rayIntersectScene( ray, out_mat, out_intersect );
-    // if (dist > EPS && dist < length(lightVec) + EPS) return true;
+    float dist = rayIntersectScene( ray, out_mat, out_intersect );
+    if (dist > EPS && dist < length(lightVec) + EPS) return true;
     return false;
 }
 
 // soft shadow
 float pointShadowRatio( vec3 pos, vec3 lightVec ) {
 
+    float x, y, z;
+
     float count = 0.0;
     const int k = 10;
-    for (int i = 0; i < 10; i++) {
-        for (int j = 0; j < 10; j++) {
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < k; j++) {
             // randomly sample new light ray around original light
-            float r1 = rand(vec2(pos.xy)*2.0-1.0);
-            float r2 = rand(vec2(pos.xy)*2.0-1.0);
-            float x = 2.0*r1*sqrt(1.0-r1*r1-r2*r2);
-            float y = 2.0*r2*sqrt(1.0-r1*r1-r2*r2);
-            float z = 1.0-2.0*(r1*r1+r2*r2);
-            vec3 newLighVec = vec3(x, y, z);
+            float r1 = rand(vec2(i, j))*2.0-1.0;
+            float r2 = rand(vec2(i, j))*2.0-1.0;
+            x = 2.0*r1*sqrt(1.0-r1*r1-r2*r2);
+            y = 2.0*r2*sqrt(1.0-r1*r1-r2*r2);
+            z = 1.0-2.0*(r1*r1+r2*r2);
+            vec3 newLighVec = vec3(x, y, z) + lightVec;
             if (!pointInShadow(pos, newLighVec)) {
                 count += 1.0;
             }
